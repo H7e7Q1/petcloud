@@ -1,0 +1,11 @@
+.search_btn_box{
+display: flex;
+justify-content: end;
+}
+.search_btn{
+    margin-right:10px ;
+}
+.el-form :deep(.upload-demo .el-upload--picture-card){
+    width: 100px;
+    height: 100px;
+}
