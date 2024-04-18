@@ -42,16 +42,8 @@ instance.interceptors.response.use(
   (res) => {
     if (res.data.code.toString().startsWith(2) ) {
       return res.data;
-    } else if (res.data.code.toString().startsWith(5)) {
-      let resErr = {
-        msg: res.data.message,
-      };
-      ElMessage.error({
-        message: res.data.message,
-      });
-      return Promise.reject(resErr);
-    } else if (res.data.code == 401) {
-      
+    }  else if (res.data.code == 401) {
+      localStorage.removeItem("token");
       ElMessageBox.confirm('登录信息已过期，请重新登录', {
         title: "提示",
         confirmButtonText: "确定",
@@ -59,11 +51,17 @@ instance.interceptors.response.use(
         showClose: false,
         type: "warning",
       }).then(() => {
-        localStorage.removeItem("token");
         router.push("/login");
       });
+    }else{
+      let resErr = {
+        message: res.data.message,
+      };
+      ElMessage.error({
+        message: res.data.message,
+      });
+      return Promise.reject(resErr);
     }
-    return res.data;
   },
   (error) => {
     switch (error.response && error.response.status) {

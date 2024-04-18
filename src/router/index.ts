@@ -102,15 +102,6 @@ const routes: RouteRecordRaw[] = [
                     permiss: '1',
                 },
                 component: () => import(/* webpackChunkName: "dashboard" */ '../views/petKnowledge/index.vue'),
-            },
-            {
-                path: '/dataStatistics',
-                name: 'dataStatistics',
-                meta: {
-                    title: '数据统计',
-                    permiss: '1',
-                },
-                component: () => import(/* webpackChunkName: "dashboard" */ '../views/dataStatistics/index.vue'),
             }
         ],
     },

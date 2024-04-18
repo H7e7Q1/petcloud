@@ -65,17 +65,15 @@
         border
         class="table"
         ref="multipleTable"
+        v-loading="loading"
         header-cell-class-name="table-header"
       >
-        <el-table-column prop="deliveryTime" label="发货时间"></el-table-column>
         <el-table-column
-          prop="expressCompany"
-          label="快递公司"
+          label="订单编号"
+          min-width="180"
+          prop="orderNumber"
         ></el-table-column>
-        <el-table-column prop="expressNumber" label="快递单号">
-        </el-table-column>
-        <el-table-column label="订单编号" prop="orderNumber"></el-table-column>
-        <el-table-column label="订单状态" prop="orderStatus">
+        <el-table-column label="订单状态" min-width="140" prop="orderStatus">
           <template #default="scope">
             {{
               orderStatus?.find((el) => el.value == scope.row.orderStatus)
@@ -83,34 +81,69 @@
             }}
           </template>
         </el-table-column>
-        <el-table-column prop="orderTime" label="下单时间"></el-table-column>
-        <el-table-column prop="payTime" label="支付时间"></el-table-column>
-        <el-table-column prop="receiveTime" label="收货时间"></el-table-column>
         <el-table-column
-          width="224"
+          prop="orderTime"
+          min-width="180"
+          label="下单时间"
+        ></el-table-column>
+        <el-table-column
+          prop="payTime"
+          min-width="180"
+          label="支付时间"
+        ></el-table-column>
+        <el-table-column
+          prop="deliveryTime"
+          min-width="180"
+          label="发货时间"
+        ></el-table-column>
+        <el-table-column prop="expressCompany" label="快递公司" min-width="180">
+          <template #default="scope">
+            {{
+              expressCompany?.find((el) => el.value == scope.row.expressCompany)
+                ?.label
+            }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="expressNumber" min-width="180" label="快递单号">
+        </el-table-column>
+        <el-table-column
+          prop="receiveTime"
+          min-width="180"
+          label="收货时间"
+        ></el-table-column>
+        <el-table-column
+          min-width="224"
           prop="receivingAddress"
           label="收货地址"
         ></el-table-column>
         <el-table-column
+          min-width="180"
           prop="receivingPhone"
           label="收货人电话"
         ></el-table-column>
         <el-table-column
+          min-width="180"
           prop="receivingUsername"
           label="收货人"
         ></el-table-column>
-        <el-table-column prop="totalPrice" label="总金额"></el-table-column>
+        <el-table-column
+          prop="totalPrice"
+          min-width="120"
+          label="总金额"
+        ></el-table-column>
         <el-table-column label="操作" width="160" fixed="right">
           <template #default="scope">
             <el-button
+              v-if="scope.row.orderStatus == 'WAIT_PAY'"
               type="danger"
               size="small"
               :icon="Delete"
               @click="handleDelete(scope.row)"
             >
-              删除
+              取消
             </el-button>
             <el-button
+              v-if="scope.row.orderStatus == 'WAIT_DELIVERY'"
               type="warning"
               size="small"
               @click="handleDelivery(scope.row)"
@@ -131,6 +164,16 @@
         ></el-pagination>
       </div>
     </div>
+    <el-dialog
+      title="填写发货信息"
+      v-model="visible"
+      width="640px"
+      destroy-on-close
+      :close-on-click-modal="false"
+      @close="closeDialog"
+    >
+      <addForm :data="rowData" :updateData="updateData" />
+    </el-dialog>
   </div>
 </template>
 
@@ -138,10 +181,12 @@
 import { ref, reactive } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { Delete, Search } from "@element-plus/icons-vue";
+import addForm from "./addForm.vue";
 
 import { getPetOrderPage, toCancel, toDelivery } from "@/api/petOrder";
 import { useDictStore } from "@/store/dict";
 const orderStatus = useDictStore().dict?.petOrderStatus;
+const expressCompany = useDictStore().dict?.expressCompany;
 
 // 搜索栏
 const searchForm = reactive({
@@ -178,12 +223,15 @@ const tableData = ref<TableItem[]>([]);
 const pageTotal = ref(0);
 
 // 获取表格数据
+const loading = ref(false);
 const getData = async () => {
+  loading.value = true;
   const res = await getPetOrderPage({
     ...searchForm,
   });
   tableData.value = res.data.records;
   pageTotal.value = res.data.total;
+  loading.value = false;
 };
 
 getData();
@@ -213,22 +261,27 @@ const handleDelete = (row: TableItem) => {
     })
     .catch(() => {});
 };
-// 删除操作
+
+const visible = ref(false);
+const rowData = ref({});
 const handleDelivery = (row: TableItem) => {
-  // 二次确认删除
-  ElMessageBox.confirm("确定要发货吗？", "提示", {
-    type: "warning",
-  })
-    .then(async () => {
-      await toDelivery({
-        expressCompany: row.expressCompany,
-        expressNumber: row.expressNumber,
-        orderId: row.id,
-      });
-      ElMessage.success("操作成功");
-      getData();
-    })
-    .catch(() => {});
+  rowData.value = row;
+  visible.value = true;
+};
+const updateData = async (params) => {
+  try {
+    await toDelivery({
+      ...params,
+    });
+    ElMessage.success("提交成功");
+    getData();
+  } catch (error) {
+    console.log(error);
+  }
+  closeDialog();
+};
+const closeDialog = () => {
+  visible.value = false;
 };
 </script>
 

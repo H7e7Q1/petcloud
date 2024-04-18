@@ -199,6 +199,42 @@ export const useDictStore = defineStore('dict', {
                         label: '已取消',
                         value: 'CANCELLED'
                     }
+                ],
+                sellStatus:[
+                    {
+                        label: '待上架',
+                        value: 'UN_SHELVES'
+                    },
+                    {
+                        label: '待售',
+                        value: 'UN_SELL'
+                    },
+                    {
+                        label: '已售',
+                        value: 'SELL'
+                    }
+                ],
+                expressCompany:[
+                    {
+                        label: '申通快递',
+                        value: 'SHENTONG'
+                    },
+                    {
+                        label: '顺丰快递',
+                        value: 'SHUNFENG'
+                    },
+                    {
+                        label: '邮政快递',
+                        value: 'YOUZHENG'
+                    },
+                    {
+                        label: '圆通快递',
+                        value: 'YUANTONG'
+                    },
+                    {
+                        label: '韵达快递',
+                        value: 'YUNDA '
+                    }
                 ]
             }
         };

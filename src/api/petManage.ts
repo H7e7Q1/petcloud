@@ -9,8 +9,8 @@ export const deletePet = (id) =>
   request('delete', '/api/mgt/pet/deletePet/'+id )
 
   // 宠物上架和下架切换
-export const petOnSelf = (params?) =>
-request('put', '/api/mgt/pet/petOnSelf', params)
+export const petOnSelf = (id) =>
+request('put', '/api/mgt/pet/petOnSelf/'+id)
 
 // 新增或更新宠物
 export const saveOrUpdatePet = (params?) =>

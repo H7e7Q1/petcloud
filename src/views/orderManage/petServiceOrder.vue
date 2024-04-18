@@ -66,6 +66,7 @@
           class="table"
           ref="multipleTable"
           header-cell-class-name="table-header"
+          v-loading = "loading"
         >
           <el-table-column label="订单编号" prop="orderNumber"></el-table-column>
           <el-table-column label="订单状态" prop="orderStatus">
@@ -82,6 +83,7 @@
           <el-table-column label="操作" width="100" fixed="right">
             <template #default="scope">
               <el-button
+              v-if="scope.row.orderStatus == 'WAIT_PAY'"
                 type="danger"
                 size="small"
                 :icon="Delete"
@@ -143,12 +145,15 @@
   const pageTotal = ref(0);
   
   // 获取表格数据
+  const loading = ref(false)
   const getData = async () => {
+    loading.value = true
     const res = await getPetServiceOrderPage({
       ...searchForm,
     });
     tableData.value = res.data.records;
     pageTotal.value = res.data.total;
+    loading.value = false
   };
   
   getData();

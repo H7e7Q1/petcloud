@@ -80,20 +80,26 @@
         class="table"
         ref="multipleTable"
         header-cell-class-name="table-header"
+        v-loading="loading"
       >
         <el-table-column
           prop="knowledgeName"
           label="知识标题名称"
-          align="center"
+          min-width="160"
         >
         </el-table-column>
-        <el-table-column prop="knowledgeType" align="center" label="知识分类">
-          <template #default="scope">{{ scope.row.knowledgeType }}</template>
+        <el-table-column prop="knowledgeType" min-width="100" label="知识分类">
+          <template #default="scope">
+            {{
+              knowledgeType?.find((el) => el.value == scope.row.knowledgeType)
+                ?.label
+            }}
+          </template>
         </el-table-column>
-        <el-table-column prop="content" label="知识内容" align="center">
+        <el-table-column prop="content" label="知识内容"  min-width="220">
         </el-table-column>
 
-        <el-table-column label="适用宠物分类" prop="applyPetType">
+        <el-table-column label="适用宠物分类" min-width="120" prop="applyPetType">
           <template #default="scope">
             {{
               applyPetType?.find((el) => el.value == scope.row.applyPetType)
@@ -101,14 +107,15 @@
             }}
           </template>
         </el-table-column>
-        <el-table-column prop="isListing" align="center" label="是否上架">
+        <el-table-column prop="isListing" min-width="100" label="是否上架">
           <template #default="scope">{{
             scope.row.isListing ? "是" : "否"
           }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="280" align="center">
+        <el-table-column label="操作" width="280" fixed="right">
           <template #default="scope">
             <el-button
+              v-if="!scope.row.isListing"
               type="primary"
               size="small"
               :icon="Edit"
@@ -117,6 +124,7 @@
               编辑
             </el-button>
             <el-button
+              v-if="!scope.row.isListing"
               type="danger"
               size="small"
               :icon="Delete"
@@ -125,11 +133,11 @@
               删除
             </el-button>
             <el-button
-              type="warning"
+              :type="scope.row.isListing ? 'warning' : 'success'"
               size="small"
               @click="isListingHandle(scope.row)"
             >
-              {{ scope.row.isListing?'下架':'上架' }}
+              {{ scope.row.isListing ? "下架" : "上架" }}
             </el-button>
           </template>
         </el-table-column>
@@ -210,12 +218,15 @@ const tableData = ref<TableItem[]>([]);
 const pageTotal = ref(0);
 
 // 获取表格数据
+const loading = ref(false);
 const getData = async () => {
+  loading.value = true;
   const res = await getPetSchoolPage({
     ...searchForm,
   });
   tableData.value = res.data.records;
   pageTotal.value = res.data.total;
+  loading.value = false;
 };
 
 getData();
@@ -238,7 +249,7 @@ const handleDelete = (row: TableItem) => {
   ElMessageBox.confirm("确定要删除吗？", "提示", {
     type: "warning",
   })
-    .then(async() => {
+    .then(async () => {
       await deletePetSchool(row.id);
       ElMessage.success("删除成功");
       getData();
@@ -248,10 +259,10 @@ const handleDelete = (row: TableItem) => {
 // 删除操作
 const isListingHandle = (row: TableItem) => {
   // 二次确认删除
-  ElMessageBox.confirm(`确定要${row.isListing?'下架':'上架'}吗？`, "提示", {
+  ElMessageBox.confirm(`确定要${row.isListing ? "下架" : "上架"}吗？`, "提示", {
     type: "warning",
   })
-    .then(async() => {
+    .then(async () => {
       await petSchoolOnSelf(row.id);
       ElMessage.success("删除成功");
       getData();
@@ -275,7 +286,8 @@ const updateData = async (params) => {
     ElMessage.success("提交成功");
     getData();
   } catch (error) {
-    ElMessage.error(error.message);
+    console.log(error);
+    // ElMessage.error(error.message);
   }
   closeDialog();
 };

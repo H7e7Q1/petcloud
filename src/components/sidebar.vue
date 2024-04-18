@@ -63,14 +63,8 @@ const items = [
     },
     {
         icon: 'Calendar',
-        index: '2',
+        index: '/petInfo',
         title: '宠物管理',
-        subs: [
-            {
-                index: '/petInfo',
-                title: '宠物信息',
-            }
-        ],
     },
     {
         icon: 'Odometer',
@@ -78,16 +72,9 @@ const items = [
         title: '商品管理',
     },
     {
-        icon: 'Calendar',
-        index: '4',
-        title: '用户管理',
-        subs: [
-            {
-                index: '/user',
-                title: '用户',
-                permiss: '1',
-            }
-        ],
+        icon: 'Odometer',
+        index: '/petService',
+        title: '宠物服务管理',
     },
     {
         icon: 'Odometer',
@@ -109,19 +96,14 @@ const items = [
         ],
     },
     {
-        icon: 'Odometer',
-        index: '/petService',
-        title: '宠物服务管理',
+        icon: 'Calendar',
+        index: '/user',
+        title: '用户管理',
     },
     {
         icon: 'Odometer',
         index: '/petKnowledge',
         title: '宠物知识管理',
-    },
-    {
-        icon: 'Odometer',
-        index: '/dataStatistics',
-        title: '数据统计',
     },
 ];
 

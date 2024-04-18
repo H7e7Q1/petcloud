@@ -90,18 +90,16 @@
         class="table"
         ref="multipleTable"
         header-cell-class-name="table-header"
+        v-loading="loading"
       >
         <el-table-column type="selection" width="55" />
         <el-table-column label="宠物名称" prop="petName"> </el-table-column>
-        <el-table-column label="宠物性别" prop="petSex"> 
+        <el-table-column label="宠物性别" width="100" prop="petSex">
           <template #default="scope">
-            {{
-              petSex?.find((el) => el.value == scope.row.petSex)
-                ?.label
-            }}
+            {{ petSex?.find((el) => el.value == scope.row.petSex)?.label }}
           </template>
         </el-table-column>
-        <el-table-column label="宠物分类" prop="petCategory">
+        <el-table-column label="宠物分类" min-width="110" prop="petCategory">
           <template #default="scope">
             {{
               applyPetType?.find((el) => el.value == scope.row.petCategory)
@@ -109,14 +107,23 @@
             }}
           </template>
         </el-table-column>
-        <el-table-column label="出生日期" prop="birthday"> </el-table-column>
-        <el-table-column label="年龄" prop="age"> </el-table-column>
-        <el-table-column label="价格" prop="petPrice"> </el-table-column>
-        <el-table-column label="绝育情况" prop="sterilization">
+        <el-table-column label="出生日期" min-width="110" prop="birthday">
         </el-table-column>
-        <el-table-column label="操作" width="220" fixed="right">
+        <el-table-column label="年龄" min-width="80" prop="age">
+        </el-table-column>
+        <el-table-column label="价格" min-width="100" prop="petPrice">
+        </el-table-column>
+        <el-table-column label="绝育情况" min-width="120" prop="sterilization">
+        </el-table-column>
+        <el-table-column label="状态" min-width="110" prop="status">
+          <template #default="scope">
+            {{ sellStatus?.find((el) => el.value == scope.row.status)?.label }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="260" fixed="right">
           <template #default="scope">
             <el-button
+              v-if="scope.row.status == 'UN_SHELVES'"
               type="primary"
               size="small"
               :icon="Edit"
@@ -125,12 +132,21 @@
               修改
             </el-button>
             <el-button
+              v-if="scope.row.status == 'UN_SHELVES'"
               type="danger"
               size="small"
               :icon="Delete"
               @click="handleDelete(scope.row)"
             >
               删除
+            </el-button>
+            <el-button
+              v-if="scope.row.status !== 'SELL'"
+              :type="scope.row.status !== 'UN_SHELVES' ? 'warning' : 'success'"
+              size="small"
+              @click="isListingHandle(scope.row)"
+            >
+              {{ scope.row.status !== "UN_SHELVES" ? "下架" : "上架" }}
             </el-button>
           </template>
         </el-table-column>
@@ -182,13 +198,19 @@ import {
   CirclePlusFilled,
   View,
 } from "@element-plus/icons-vue";
-import { getPetPage, saveOrUpdatePet, deletePet } from "@/api/petManage";
+import {
+  getPetPage,
+  saveOrUpdatePet,
+  deletePet,
+  petOnSelf,
+} from "@/api/petManage";
 import patForm from "./addForm.vue";
 
 import { useDictStore } from "@/store/dict";
 const applyPetType = useDictStore().dict?.applyPetType;
 const petSex = useDictStore().dict?.petSex;
-
+const sellStatus = useDictStore().dict?.sellStatus;
+const loading = ref(false);
 const formRef = ref();
 // 重置
 const resetFields = () => {
@@ -208,6 +230,7 @@ const searchForm = reactive({
 // 表格数据类型
 interface TableItem {
   id: string;
+  status: string;
   petName: string;
   petSex: string;
   petCategory: string;
@@ -227,11 +250,13 @@ const pageTotal = ref(0);
 
 // 获取表格数据
 const getData = async () => {
+  loading.value = true;
   const res = await getPetPage({
     ...searchForm,
   });
   tableData.value = res.data.records;
   pageTotal.value = res.data.total;
+  loading.value = false;
 };
 
 getData();
@@ -257,6 +282,23 @@ const handleDelete = (row: TableItem) => {
     .then(async () => {
       await deletePet(row.id);
       ElMessage.success("删除成功");
+      getData();
+    })
+    .catch(() => {});
+};
+// 下架上架操作
+const isListingHandle = (row: TableItem) => {
+  // 二次确认下架上架
+  ElMessageBox.confirm(
+    `确定要${row.status !== "UN_SHELVES" ? "下架" : "上架"}吗？`,
+    "提示",
+    {
+      type: "warning",
+    }
+  )
+    .then(async () => {
+      await petOnSelf(row.id);
+      ElMessage.success(`${row.status !== "UN_SHELVES" ? "下架" : "上架"}成功`);
       getData();
     })
     .catch(() => {});
@@ -289,7 +331,7 @@ const updateData = async (params) => {
     ElMessage.success("提交成功");
     getData();
   } catch (error) {
-    ElMessage.error(error.message);
+    console.log(error)
   }
 
   closeDialog();

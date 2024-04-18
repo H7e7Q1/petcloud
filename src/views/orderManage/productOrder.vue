@@ -67,15 +67,12 @@
         ref="multipleTable"
         header-cell-class-name="table-header"
       >
-        <el-table-column prop="deliveryTime" label="发货时间"></el-table-column>
         <el-table-column
-          prop="expressCompany"
-          label="快递公司"
+          label="订单编号"
+          min-width="180"
+          prop="orderNumber"
         ></el-table-column>
-        <el-table-column prop="expressNumber" label="快递单号">
-        </el-table-column>
-        <el-table-column label="订单编号" prop="orderNumber"></el-table-column>
-        <el-table-column label="订单状态" prop="orderStatus">
+        <el-table-column label="订单状态" min-width="120" prop="orderStatus">
           <template #default="scope">
             {{
               orderStatus?.find((el) => el.value == scope.row.orderStatus)
@@ -83,9 +80,36 @@
             }}
           </template>
         </el-table-column>
-        <el-table-column prop="orderTime" label="下单时间"></el-table-column>
-        <el-table-column prop="payTime" label="支付时间"></el-table-column>
-        <el-table-column prop="receiveTime" label="收货时间"></el-table-column>
+        <el-table-column
+          prop="orderTime"
+          min-width="180"
+          label="下单时间"
+        ></el-table-column>
+        <el-table-column
+          prop="payTime"
+          min-width="180"
+          label="支付时间"
+        ></el-table-column>
+        <el-table-column
+          prop="deliveryTime"
+          min-width="180"
+          label="发货时间"
+        ></el-table-column>
+        <el-table-column
+          prop="expressCompany"
+          label="快递公司"
+          min-width="180"
+        ></el-table-column>
+        <el-table-column
+          prop="expressNumber"
+          min-width="180"
+          label="快递单号"
+        ></el-table-column>
+        <el-table-column
+          prop="receiveTime"
+          min-width="180"
+          label="收货时间"
+        ></el-table-column>
         <el-table-column
           width="224"
           prop="receivingAddress"
@@ -94,12 +118,14 @@
         <el-table-column
           prop="receivingPhone"
           label="收货人电话"
+          min-width="180"
         ></el-table-column>
         <el-table-column
+          min-width="180"
           prop="receivingUsername"
           label="收货人"
         ></el-table-column>
-        <el-table-column prop="totalPrice" label="总金额"></el-table-column>
+        <el-table-column prop="totalPrice" min-width="120" label="总金额"></el-table-column>
         <el-table-column label="操作" width="100" fixed="right">
           <template #default="scope">
             <el-button

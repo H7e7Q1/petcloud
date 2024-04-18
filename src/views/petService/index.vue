@@ -56,31 +56,32 @@
         class="table"
         ref="multipleTable"
         header-cell-class-name="table-header"
+        v-loading="loading"
       >
-        <el-table-column prop="serviceTitle" label="服务标题">
+        <el-table-column prop="serviceTitle" min-width="220" label="服务标题">
         </el-table-column>
-        <el-table-column prop="isListing" label="是否上架">
+        <el-table-column prop="isListing" min-width="100" label="是否上架">
           <template #default="scope">
             {{ scope.row.isListing ? "是" : "否" }}
           </template>
         </el-table-column>
-        <el-table-column prop="isRecommend" label="是否推荐">
+        <el-table-column prop="isRecommend" min-width="100"  label="是否推荐">
           <template #default="scope">
             {{ scope.row.isRecommend ? "是" : "否" }}
           </template>
         </el-table-column>
-        <el-table-column prop="isTopping" label="是否置顶">
+        <el-table-column prop="isTopping" min-width="100"  label="是否置顶">
           <template #default="scope">
             {{ scope.row.isTopping ? "是" : "否" }}
           </template>
         </el-table-column>
-        <el-table-column prop="petPrice" label="价格"> </el-table-column>
-        <el-table-column prop="publicize" label="服务宣传语"> </el-table-column>
-        <el-table-column prop="serviceDuration" label="服务时长">
+        <el-table-column prop="petPrice" min-width="100"  label="价格"> </el-table-column>
+        <el-table-column prop="publicize"  min-width="220"  label="服务宣传语"> </el-table-column>
+        <el-table-column prop="serviceDuration"  min-width="100"  label="服务时长">
         </el-table-column>
-        <el-table-column prop="servicePeriod" label="服务时段">
+        <el-table-column prop="servicePeriod"  min-width="140"  label="服务时段">
         </el-table-column>
-        <el-table-column label="服务类别" prop="serviceType">
+        <el-table-column label="服务类别"  min-width="140"  prop="serviceType">
           <template #default="scope">
             {{
               serviceType?.find((el) => el.value == scope.row.serviceType)
@@ -93,7 +94,7 @@
             <img :src="scope.row.titlePhoto" alt="宠物标题照片" />
           </template>
         </el-table-column> -->
-        <el-table-column label="操作" width="280">
+        <el-table-column label="操作" width="280" fixed="right">
           <template #default="scope">
             <el-button
               type="primary"
@@ -111,12 +112,12 @@
             >
               删除
             </el-button>
-            <el-button
-              type="warning"
+            <el-button              
+              :type="scope.row.isListing? 'warning' : 'success'"
               size="small"
               @click="isListingHandle(scope.row)"
             >
-              {{ scope.row.isListing?'下架':'上架' }}
+              {{ scope.row.isListing ? "下架" : "上架" }}
             </el-button>
           </template>
         </el-table-column>
@@ -140,11 +141,7 @@
       :close-on-click-modal="false"
       @close="closeDialog"
     >
-      <patForm
-        :data="rowData"
-        :edit="idEdit"
-        :updateData="updateData"
-      />
+      <patForm :data="rowData" :edit="idEdit" :updateData="updateData" />
     </el-dialog>
   </div>
 </template>
@@ -170,6 +167,7 @@ import {
 import { useDictStore } from "@/store/dict";
 const serviceType = useDictStore().dict?.serviceType;
 const formRef = ref();
+const loading = ref();
 // 重置
 const resetFields = () => {
   formRef.value.resetFields();
@@ -201,11 +199,13 @@ const pageTotal = ref(0);
 
 // 获取表格数据
 const getData = async () => {
+  loading.value = true;
   const res = await getPetServicePage({
     ...searchForm,
   });
   tableData.value = res.data.records;
   pageTotal.value = res.data.total;
+  loading.value = false;
 };
 
 getData();
@@ -238,12 +238,12 @@ const handleDelete = (row: TableItem) => {
 // 下架上架操作
 const isListingHandle = (row: TableItem) => {
   // 二次确认删除
-  ElMessageBox.confirm(`确定要${row.isListing?'下架':'上架'}吗？`, "提示", {
+  ElMessageBox.confirm(`确定要${row.isListing ? "下架" : "上架"}吗？`, "提示", {
     type: "warning",
   })
-    .then(async() => {
+    .then(async () => {
       await petServiceOnSelf(row.id);
-      ElMessage.success(`${row.isListing?'下架':'上架'}成功`);
+      ElMessage.success(`${row.isListing ? "下架" : "上架"}成功`);
       getData();
     })
     .catch(() => {});
@@ -268,7 +268,8 @@ const updateData = async (params) => {
     ElMessage.success("提交成功");
     getData();
   } catch (error) {
-    ElMessage.error(error.message);
+    console.log(error)
+    // ElMessage.error(error.message);
   }
   closeDialog();
 };

@@ -34,7 +34,7 @@
 				</el-table-column>
 
 				<el-table-column prop="date" label="注册时间" align="center"></el-table-column>
-				<el-table-column label="操作" width="280" align="center">
+				<el-table-column label="操作" width="280" fixed="right">
 					<template #default="scope">
 						<el-button type="warning" size="small" :icon="View" @click="handleView(scope.row)">
 							查看

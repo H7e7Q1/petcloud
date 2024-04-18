@@ -65,26 +65,30 @@
         class="table"
         ref="multipleTable"
         header-cell-class-name="table-header"
+        v-loading="loading"
       >
-        <el-table-column prop="title" width="220" label="商品标题"> </el-table-column>
-        <el-table-column prop="brandName" label="品牌名称"> </el-table-column>
-        <el-table-column prop="isListing" label="是否上架">
+        <el-table-column prop="title" min-width="220" label="商品标题">
+        </el-table-column>
+        <el-table-column prop="brandName" min-width="160" label="品牌名称">
+        </el-table-column>
+        <el-table-column prop="isListing" min-width="100" label="是否上架">
           <template #default="scope">
             {{ scope.row.isListing ? "是" : "否" }}
           </template>
         </el-table-column>
-        <el-table-column prop="isRecommend" label="是否推荐">
+        <el-table-column prop="isRecommend" min-width="100" label="是否推荐">
           <template #default="scope">
             {{ scope.row.isRecommend ? "是" : "否" }}
           </template>
         </el-table-column>
-        <el-table-column prop="isTopping" label="是否置顶">
+        <el-table-column prop="isTopping" min-width="100" label="是否置顶">
           <template #default="scope">
             {{ scope.row.isTopping ? "是" : "否" }}
           </template>
         </el-table-column>
-        <el-table-column prop="price" label="价格"> </el-table-column>
-        <el-table-column label="商品类别" prop="productType">
+        <el-table-column prop="price" min-width="100" label="价格">
+        </el-table-column>
+        <el-table-column label="商品类别" min-width="140" prop="productType">
           <template #default="scope">
             {{
               productType?.find((el) => el.value == scope.row.productType)
@@ -93,8 +97,9 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="stock" label="库存量"> </el-table-column>
-        <el-table-column label="操作" width="240">
+        <el-table-column prop="stock" min-width="100" label="库存量">
+        </el-table-column>
+        <el-table-column label="操作" width="260" fixed="right">
           <template #default="scope">
             <el-button
               type="primary"
@@ -113,7 +118,7 @@
               删除
             </el-button>
             <el-button
-              type="warning"
+              :type="scope.row.isListing ? 'warning' : 'success'"
               size="small"
               @click="isListingHandle(scope.row)"
             >
@@ -167,6 +172,7 @@ import {
 import { useDictStore } from "@/store/dict";
 const productType = useDictStore().dict?.productType;
 const formRef = ref();
+const loading = ref();
 // 重置
 const resetFields = () => {
   formRef.value.resetFields();
@@ -199,11 +205,13 @@ const pageTotal = ref(0);
 
 // 获取表格数据
 const getData = async () => {
+  loading.value = true;
   const res = await getProductPage({
     ...searchForm,
   });
   tableData.value = res.data.records;
   pageTotal.value = res.data.total;
+  loading.value = false;
 };
 
 getData();
@@ -273,7 +281,8 @@ const updateData = async (params) => {
     ElMessage.success("提交成功");
     getData();
   } catch (error) {
-    ElMessage.error(error.message);
+    console.log(error);
+    // ElMessage.error(error.message);
   }
   closeDialog();
 };
