@@ -40,20 +40,20 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (res) => {
-    if (res.data.code.toString().startsWith(2) ) {
+    if (res.data.code.toString().startsWith(2)) {
       return res.data;
-    }  else if (res.data.code == 401) {
-      localStorage.removeItem("token");
-      ElMessageBox.confirm('登录信息已过期，请重新登录', {
+    } else if (res.data.code == 401) {
+      ElMessageBox.confirm("登录信息已过期，请重新登录", {
         title: "提示",
         confirmButtonText: "确定",
         showCancelButton: false,
         showClose: false,
         type: "warning",
       }).then(() => {
-        router.push("/login");
+        localStorage.removeItem("token");
+        router.go(0);
       });
-    }else{
+    } else {
       let resErr = {
         message: res.data.message,
       };

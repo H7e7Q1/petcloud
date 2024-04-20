@@ -17,10 +17,21 @@ export const loginOut = () =>
 export const updateAdminPassword = () =>
   request('put', '​/api​/mgt​/admin​/updateAdminPassword')
 
-
 // 获取管理人信息 
 export const getAdminInfo = (params?) =>
   request('get', '/api/mgt/admin/getAdminInfo', params)
 // 修改管理员信息
 export const updateAdminInfo = (params?) =>
   request('put', '/api/mgt/admin/updateAdminInfo', params)
+
+// 首页统计数据 
+export const homeTotal = (params?) =>
+  request('get', '/api/mgt/home/homeTotal', params)
+
+// 订单统计一周
+export const homeTotalOrderWeek = (params?) =>
+  request('get', '/api/mgt/home/homeTotalOrderWeek', params)
+
+// 订单统计半年
+export const homeTotalOrderHalfYear = (params?) =>
+  request('get', '/api/mgt/home/homeTotalOrderHalfYear', params)

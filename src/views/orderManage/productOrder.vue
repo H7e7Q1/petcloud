@@ -99,7 +99,14 @@
           prop="expressCompany"
           label="快递公司"
           min-width="180"
-        ></el-table-column>
+        >
+          <template #default="scope">
+            {{
+              expressCompany?.find((el) => el.value == scope.row.expressCompany)
+                ?.label
+            }}
+          </template>
+        </el-table-column>
         <el-table-column
           prop="expressNumber"
           min-width="180"
@@ -129,12 +136,21 @@
         <el-table-column label="操作" width="100" fixed="right">
           <template #default="scope">
             <el-button
+             v-if="scope.row.orderStatus == 'WAIT_PAY'"
               type="danger"
               size="small"
               :icon="Delete"
               @click="handleDelete(scope.row)"
             >
               取消
+            </el-button>
+             <el-button
+              v-if="scope.row.orderStatus == 'WAIT_DELIVERY'"
+              type="warning"
+              size="small"
+              @click="handleDelivery(scope.row)"
+            >
+              发货
             </el-button>
           </template>
         </el-table-column>
@@ -150,6 +166,16 @@
         ></el-pagination>
       </div>
     </div>
+      <el-dialog
+      title="填写发货信息"
+      v-model="visible"
+      width="640px"
+      destroy-on-close
+      :close-on-click-modal="false"
+      @close="closeDialog"
+    >
+      <addForm :data="rowData" :updateData="updateData" />
+    </el-dialog>
   </div>
 </template>
 
@@ -157,10 +183,12 @@
 import { ref, reactive } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { Delete, Search } from "@element-plus/icons-vue";
-
-import { getProductOrderPage, deletePetService } from "@/api/productOrder";
+// 如果发货组件没差别，可用一个组件 
+import addForm from "./productOrderAddForm.vue";
+import { getProductOrderPage, deletePetService ,toDelivery} from "@/api/productOrder";
 import { useDictStore } from "@/store/dict";
 const orderStatus = useDictStore().dict?.productOrderStatus;
+const expressCompany = useDictStore().dict?.expressCompany;
 
 // 搜索栏
 const searchForm = reactive({
@@ -195,7 +223,12 @@ interface TableItem {
 }
 const tableData = ref<TableItem[]>([]);
 const pageTotal = ref(0);
-
+const visible = ref(false);
+const rowData = ref({});
+const handleDelivery = (row: TableItem) => {
+  rowData.value = row;
+  visible.value = true;
+};
 // 获取表格数据
 const getData = async () => {
   const res = await getProductOrderPage({
@@ -231,6 +264,21 @@ const handleDelete = (row: TableItem) => {
       getData();
     })
     .catch(() => {});
+};
+const updateData = async (params) => {
+  try {
+    await toDelivery({
+      ...params,
+    });
+    ElMessage.success("提交成功");
+    getData();
+  } catch (error) {
+    console.log(error);
+  }
+  closeDialog();
+};
+const closeDialog = () => {
+  visible.value = false;
 };
 </script>
 
